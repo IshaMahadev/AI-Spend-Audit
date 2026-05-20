@@ -20,6 +20,7 @@ const TOOLS: Record<ToolName, Plan[]> = {
 };
 
 export default function InputForm({ onSubmit }: InputFormProps) {
+  const [email, setEmail] = useState<string>("");
   const [teamSize, setTeamSize] = useState<number>(1);
   const [primaryUseCase, setPrimaryUseCase] = useState<UseCase>("coding");
   const [subscriptions, setSubscriptions] = useState<ToolSubscription[]>([]);
@@ -30,22 +31,31 @@ export default function InputForm({ onSubmit }: InputFormProps) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
+        // If saved state has no email it's stale from before Round 2 — wipe it
+        if (!parsed.email) {
+          localStorage.removeItem("credex-audit-state");
+          setSubscriptions([{ id: Date.now().toString(), toolName: "Cursor", plan: "Pro", spend: 20, seats: 1 }]);
+          return;
+        }
+        setEmail(parsed.email || "");
         setTeamSize(parsed.teamSize || 1);
         setPrimaryUseCase(parsed.primaryUseCase || "coding");
         setSubscriptions(parsed.subscriptions || []);
       } catch (e) {
         console.error("Failed to parse saved state");
+        localStorage.removeItem("credex-audit-state");
+        setSubscriptions([{ id: Date.now().toString(), toolName: "Cursor", plan: "Pro", spend: 20, seats: 1 }]);
       }
     } else {
-      // Add a default
+      // Add a default subscription row
       setSubscriptions([{ id: Date.now().toString(), toolName: "Cursor", plan: "Pro", spend: 20, seats: 1 }]);
     }
   }, []);
 
   // Save to local storage on change
   useEffect(() => {
-    localStorage.setItem("credex-audit-state", JSON.stringify({ teamSize, primaryUseCase, subscriptions }));
-  }, [teamSize, primaryUseCase, subscriptions]);
+    localStorage.setItem("credex-audit-state", JSON.stringify({ email, teamSize, primaryUseCase, subscriptions }));
+  }, [email, teamSize, primaryUseCase, subscriptions]);
 
   const addTool = () => {
     setSubscriptions([...subscriptions, {
@@ -75,7 +85,7 @@ export default function InputForm({ onSubmit }: InputFormProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ teamSize, primaryUseCase, subscriptions });
+    onSubmit({ email, teamSize, primaryUseCase, subscriptions });
   };
 
   return (
@@ -84,6 +94,18 @@ export default function InputForm({ onSubmit }: InputFormProps) {
         <div>
           <h2 className="text-2xl font-bold mb-4">YOUR ORGANIZATION</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col space-y-2 md:col-span-2">
+              <label htmlFor="email-address" className="text-xs uppercase tracking-wider text-muted-foreground">Work Email</label>
+              <input
+                id="email-address"
+                type="email"
+                required
+                placeholder="you@company.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="brutalist-input text-lg"
+              />
+            </div>
             <div className="flex flex-col space-y-2">
               <label htmlFor="team-size" className="text-xs uppercase tracking-wider text-muted-foreground">Team Size</label>
               <input

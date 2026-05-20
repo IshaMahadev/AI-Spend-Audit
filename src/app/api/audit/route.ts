@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { runAudit } from "@/lib/audit";
-import { saveAudit } from "@/lib/supabase";
+import { saveAudit } from "@/lib/auditStorage";
 import { checkRateLimit } from "@/lib/ratelimit";
 import type { UserInputData } from "@/lib/types";
 
@@ -14,6 +14,7 @@ const subscriptionSchema = z.object({
 });
 
 const formSchema = z.object({
+  email: z.string().email(),
   teamSize: z.number().int().min(1).max(100_000),
   primaryUseCase: z.enum(["coding", "writing", "data", "research", "mixed"]),
   subscriptions: z.array(subscriptionSchema).min(1).max(20),
@@ -44,10 +45,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const email = parsed.data.email;
   const audit = runAudit(parsed.data as unknown as UserInputData);
 
   try {
-    await saveAudit(audit);
+    await saveAudit(email, parsed.data as unknown as UserInputData, audit);
   } catch (err) {
     console.error("DB save failed:", err);
     // Return the audit anyway — don't block the user because DB is down
