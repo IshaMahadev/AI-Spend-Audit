@@ -7,11 +7,14 @@ datasource db {
 }
 
 model Audit {
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  data      String   // JSON string of the audit payload
-  summary   String?  // The AI generated summary
-  Lead      Lead?
+  id              String    @id @default(cuid())
+  userEmail       String
+  inputStack      Json      // tools + plans user submitted
+  outputResult    Json      // Claude's audit result
+  pricingSnapshot Json      // pricing data at time of audit
+  reauditParentId String?   // if re-audit, points to original audit ID
+  createdAt       DateTime  @default(now())
+  Lead            Lead?
 }
 
 model Lead {
@@ -22,5 +25,31 @@ model Lead {
   teamSize    String?
   createdAt   DateTime @default(now())
   auditId     String   @unique
-  audit       Audit    @relation(fields: [auditId], references: [id])
+  audit       Audit    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+}
+
+// Tracks users who have opted out of re-audit emails
+model Unsubscribe {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}
+
+// Tracks every notification email sent + whether the user clicked through
+model EmailLog {
+  id        String    @id @default(cuid())
+  email     String
+  auditId   String
+  sentAt    DateTime  @default(now())
+  clickedAt DateTime?           // set when user visits /reaudit/[id]?ref=email
+}
+
+// Tracks detected pricing changes over time (powers the public /changes page)
+model PricingChangeLog {
+  id         String   @id @default(cuid())
+  tool       String
+  plan       String
+  oldPrice   Float
+  newPrice   Float
+  detectedAt DateTime @default(now())
 }
