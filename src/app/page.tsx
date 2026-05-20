@@ -22,7 +22,16 @@ export default function Home() {
 
       if (!res.ok) {
         const errData = await res.json();
-        throw new Error(errData.error || "Failed to run audit");
+        let message = errData.error || "Failed to run audit";
+        if (errData.details && errData.details.fieldErrors) {
+          const fieldErrors = Object.entries(errData.details.fieldErrors)
+            .map(([field, msgs]) => `${field}: ${(msgs as string[]).join(", ")}`)
+            .join("; ");
+          if (fieldErrors) {
+            message = `${message} (${fieldErrors})`;
+          }
+        }
+        throw new Error(message);
       }
 
       const { audit } = await res.json();
