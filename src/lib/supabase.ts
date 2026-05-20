@@ -18,18 +18,23 @@ function createPrismaClient() {
   return new PrismaClient({ adapter });
 }
 
-const prisma = globalForPrisma.prisma ?? createPrismaClient();
+export const prisma = globalForPrisma.prisma ?? createPrismaClient();
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 /* ------------------------------------------------------------------ */
 /*  Audit CRUD                                                        */
 /* ------------------------------------------------------------------ */
 
+import { CURRENT_PRICING } from "./pricing";
+
 export async function saveAudit(audit: AuditResult): Promise<void> {
   await prisma.audit.create({
     data: {
       id: audit.id,
-      data: JSON.stringify(audit),
+      userEmail: "legacy@example.com",
+      inputStack: {} as any,
+      outputResult: audit as any,
+      pricingSnapshot: CURRENT_PRICING,
     },
   });
 }
@@ -38,9 +43,10 @@ export async function getAudit(id: string): Promise<AuditResult | null> {
   const record = await prisma.audit.findUnique({ where: { id } });
   if (!record) return null;
 
-  const data = JSON.parse(record.data) as AuditResult;
-  data.aiSummary = record.summary ?? undefined;
-  data.createdAt = record.createdAt.toISOString();
+  const data = record.outputResult as unknown as AuditResult;
+  if (data) {
+    data.createdAt = record.createdAt.toISOString();
+  }
   return data;
 }
 
@@ -48,10 +54,17 @@ export async function updateAuditSummary(
   id: string,
   summary: string
 ): Promise<void> {
-  await prisma.audit.update({
-    where: { id },
-    data: { summary },
-  });
+  const record = await prisma.audit.findUnique({ where: { id } });
+  if (!record) return;
+
+  const outputResult = record.outputResult as any;
+  if (outputResult) {
+    outputResult.aiSummary = summary;
+    await prisma.audit.update({
+      where: { id },
+      data: { outputResult },
+    });
+  }
 }
 
 /* ------------------------------------------------------------------ */
