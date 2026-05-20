@@ -6,6 +6,7 @@
 import { runAudit as runEngine } from "./auditEngine";
 import type { UserInputData } from "./types";
 import type { AuditResult, ToolRecommendation } from "@/types";
+import { CURRENT_PRICING, PricingSnapshot } from "./pricing";
 
 /** Industry average AI spend per developer per month (USD). */
 const INDUSTRY_AVG_PER_DEV = 45;
@@ -23,8 +24,8 @@ function mapRecommendation(action: string): string {
   return "already_optimal";
 }
 
-export function runAudit(input: UserInputData): AuditResult {
-  const engineResult = runEngine(input);
+export function runAudit(input: UserInputData, pricing: PricingSnapshot = CURRENT_PRICING): AuditResult {
+  const engineResult = runEngine(input, pricing);
 
   const totalMonthlySpend = Number(input.subscriptions.reduce(
     (sum, s) => sum + s.spend,

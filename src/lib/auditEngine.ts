@@ -1,6 +1,7 @@
 import { UserInputData, ToolAuditResult, AuditReport } from './types';
+import { CURRENT_PRICING, PricingSnapshot } from './pricing';
 
-export function runAudit(data: UserInputData): AuditReport {
+export function runAudit(data: UserInputData, pricing: PricingSnapshot = CURRENT_PRICING): AuditReport {
   const results: ToolAuditResult[] = [];
   let totalMonthlySavings = 0;
 
@@ -13,11 +14,11 @@ export function runAudit(data: UserInputData): AuditReport {
     if (sub.toolName === 'Cursor') {
       if (data.primaryUseCase !== 'coding') {
         action = "Switch to Claude Pro or ChatGPT Plus";
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.claude.pro * sub.seats);
         reason = "Cursor is optimized for coding. For general usage, a standard LLM chat interface is more cost-effective.";
       } else if (sub.plan === 'Business' && data.teamSize < 3) {
         action = "Downgrade to Cursor Pro";
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.cursor.pro * sub.seats);
         reason = "Cursor Business requires centralized billing, but for small teams (<3), individual Pro plans offer the same features for half the price.";
       }
     }
@@ -26,7 +27,7 @@ export function runAudit(data: UserInputData): AuditReport {
     if (sub.toolName === 'GitHub Copilot') {
       if (data.primaryUseCase === 'coding') {
         action = "Switch to Cursor Pro";
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.cursor.pro * sub.seats);
         reason = "Cursor Pro provides superior code-generation capabilities (Claude 3.5 Sonnet) at a similar price point, often eliminating the need for a separate ChatGPT subscription.";
       }
     }
@@ -36,11 +37,11 @@ export function runAudit(data: UserInputData): AuditReport {
       if (sub.plan === 'Team' && data.teamSize < 5) {
         action = "Downgrade to Claude Pro";
         // Team is $30/user, Pro is $20/user
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.claude.pro * sub.seats);
         reason = "Claude Team has a minimum seat requirement and higher cost per user. For small teams, individual Pro accounts save 33%.";
       } else if (sub.plan === 'API direct' && sub.spend > 100 && data.teamSize <= 2) {
         action = "Switch to Claude Pro";
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.claude.pro * sub.seats);
         reason = "High API spend for a small team indicates power-usage that would be cheaper on a flat-rate Pro subscription.";
       }
     }
@@ -62,7 +63,7 @@ export function runAudit(data: UserInputData): AuditReport {
     if (sub.toolName === 'Anthropic API direct' || sub.toolName === 'OpenAI API direct') {
       if (sub.plan === 'Pay-as-you-go' && sub.spend > 100 && data.teamSize <= 2) {
         action = "Switch to individual Pro subscriptions";
-        savings = sub.spend - (20 * sub.seats);
+        savings = sub.spend - (pricing.claude.pro * sub.seats);
         reason = "High API spend for a small team indicates power-usage that would be cheaper on flat-rate $20/mo subscriptions.";
       }
     }

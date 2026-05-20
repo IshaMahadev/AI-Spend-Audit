@@ -21,6 +21,7 @@ export interface ToolSubscription {
 }
 
 export interface UserInputData {
+  email: string;
   teamSize: number;
   primaryUseCase: UseCase;
   subscriptions: ToolSubscription[];
