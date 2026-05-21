@@ -682,6 +682,14 @@ export default function AuditResultsClient({ audit }: { audit: AuditResult }) {
             >
               ← Run Another Audit
             </Link>
+
+            {/* Re-audit Diff View */}
+            <Link
+              href={`/reaudit/${audit.id}`}
+              className="block w-full mt-3 py-3 border-2 border-acid bg-acid text-ink font-display font-700 text-sm rounded-xl text-center hover:opacity-80 transition-all duration-150"
+            >
+              ⟲ Check Current Pricing (Diff View)
+            </Link>
           </div>
         </div>
       </div>
