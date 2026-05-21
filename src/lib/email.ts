@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-
+import { generateUnsubToken } from '@/lib/unsubToken';
 const resendApiKey = process.env.RESEND_API_KEY;
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
 
@@ -23,7 +23,9 @@ export async function sendAuditConfirmationEmail(
     ? `Your AI Spend Audit Results for ${companyName}`
     : `Your AI Spend Audit Results`;
 
-  const textContent = `
+    const unsubUrl = `${APP_URL}/api/unsubscribe?email=${encodeURIComponent(email)}&token=${generateUnsubToken(email)}`;
+
+    const textContent = `
     Hi there,
 
     Thanks for using Auditly. We have finished analyzing your AI infrastructure stack.
@@ -37,6 +39,10 @@ export async function sendAuditConfirmationEmail(
 
     Best,
     The Auditly Team
+
+    ---
+    Don't want these emails? Unsubscribe instantly:
+    ${unsubUrl}
   `;
 
   const htmlContent = `
@@ -60,6 +66,10 @@ export async function sendAuditConfirmationEmail(
 
       <p style="margin-top: 30px; font-size: 14px; color: #6b7280;">
         If you have significant savings and would like to capture them, <a href="https://credex.rocks">book a free consultation with Credex</a> to procure discounted credits.
+      </p>
+      <hr style="border: none; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+      <p style="font-size: 12px; color: #9ca3af;">
+        Don't want these emails? <a href="${unsubUrl}" style="color: #9ca3af; text-decoration: underline;">Unsubscribe instantly</a>
       </p>
     </div>
   `;
