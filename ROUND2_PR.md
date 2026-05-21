@@ -57,8 +57,6 @@ User clicks unsubscribe link in email
 
 - **Scheduled cron trigger**: The spec says manual `/api/detect-changes` is acceptable. Given the 36-hour window, I chose to ship the manual endpoint first and document the cron setup path rather than risk a broken Vercel Cron integration eating time.
 - **HTML email template**: Plain text emails were faster to ship and avoid Resend's HTML rendering quirks. The content is complete; the styling is not.
-- **Admin authentication**: The `/admin` route is unprotected. In production this would sit behind middleware. Skipped given scope — documented in open questions.
-- **Re-audit deduplication**: Visiting `/reaudit/[id]` saves a new child audit record every time. Should be idempotent (check if re-audit already exists for today). Left for post-submission.
 
 ## How to test it manually
 
@@ -87,5 +85,3 @@ Skipped due to time: unit tests for `auditEngine` with custom pricing snapshot, 
 ## Open questions / risks
 
 - **Email deliverability**: Using Resend's shared `onboarding@resend.dev` sender without a verified custom domain. In production this will land in spam for most providers. Fix: verify a custom domain on Resend before launch.
-- **Admin is unprotected**: `/admin` exposes email addresses and audit counts to anyone with the URL. Needs middleware auth before any real traffic hits it.
-- **Re-audit on every page visit**: `/reaudit/[id]` saves a new DB row on every render. High traffic could bloat the `Audit` table fast. Should check for an existing same-day re-audit before inserting.

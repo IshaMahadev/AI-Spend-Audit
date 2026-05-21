@@ -42,14 +42,26 @@ export default async function ReauditPage({ params }: ReauditPageProps) {
   // Run audit with current pricing snapshot
   const newAuditResult = runAudit(inputStack, CURRENT_PRICING);
 
-  // Check if a child reaudit for this visit was already logged or just log it
+  // Check if a child reaudit for this visit was already logged today
   try {
-    await saveAudit(
-      originalAudit.userEmail,
-      inputStack,
-      newAuditResult,
-      originalAudit.id
-    );
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    const existingReaudit = await prisma.audit.findFirst({
+      where: {
+        reauditParentId: originalAudit.id,
+        createdAt: { gte: startOfToday },
+      },
+    });
+
+    if (!existingReaudit) {
+      await saveAudit(
+        originalAudit.userEmail,
+        inputStack,
+        newAuditResult,
+        originalAudit.id
+      );
+    }
   } catch (err) {
     console.error("Failed to save re-audit record:", err);
   }
