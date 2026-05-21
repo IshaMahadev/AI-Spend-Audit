@@ -10,14 +10,25 @@ AI Spend Audit is a brutal, mathematically defensible tool for engineering manag
 
 ## Screenshots
 
-### Homepage — Input Your Stack
-![Homepage](docs/screenshots/homepage.png)
+### Homepage
+<img width="1907" height="871" alt="image" src="https://github.com/user-attachments/assets/14308c9a-9f5f-468b-bba8-64f4267c074b" />
+
+<img width="1907" height="862" alt="image" src="https://github.com/user-attachments/assets/cf7ea3d8-7c93-4d9f-a9a4-d8643776efaa" />
 
 ### Results — Optimally Spending
-![Results Optimal](docs/screenshots/results-optimal.png)
+<img width="1908" height="866" alt="image" src="https://github.com/user-attachments/assets/32df1361-0795-48b0-83f4-3611a48802e2" />
 
 ### Results — Savings Detected
-![Results Savings](docs/screenshots/results-savings.png)
+<img width="1902" height="857" alt="image" src="https://github.com/user-attachments/assets/89d1a6f9-da49-4b24-a9fe-c6ff751ccb4e" />
+
+<img width="1902" height="863" alt="image" src="https://github.com/user-attachments/assets/3b5a7621-9f0e-464c-ac57-b0250128271d" />
+
+<img width="1901" height="868" alt="image" src="https://github.com/user-attachments/assets/97bfd582-fd6d-4571-a53c-8c945b8162ab" />
+
+### Admin Dashboard
+
+<img width="1906" height="863" alt="image" src="https://github.com/user-attachments/assets/77af172c-c437-40a6-9552-1942e7fe642e" />
+
 
 ## Quick Start
 
