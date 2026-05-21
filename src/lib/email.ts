@@ -7,7 +7,7 @@ const resend = resendApiKey ? new Resend(resendApiKey) : null;
 // In production, set FROM_EMAIL to a verified domain address e.g. "hello@yourdomain.com".
 // Without a verified domain, Resend restricts delivery to your own Resend-account email only.
 const FROM_EMAIL = process.env.FROM_EMAIL ?? 'Auditly <onboarding@resend.dev>';
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ai-spend-audit.vercel.app";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://ai-spend-audit-git-round-c9f87e-ishamahadev2019-2113s-projects.vercel.app?_vercel_share=yD3Pw2WmjekifFnkG46IwP1YJa33inXX";
 
 /**
  * Sends a transactional email containing the audit result.
